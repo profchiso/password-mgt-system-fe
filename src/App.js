@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Particles, { initParticlesEngine } from "@tsparticles/react";
 import { loadFull, l } from "tsparticles";
-import { loadSlim } from "@tsparticles/slim";
+//import { loadSlim } from "@tsparticles/slim";
 import {
   ConfigProvider,
   Button,
@@ -10,7 +10,12 @@ import {
   Space,
   notification,
 } from "antd";
-import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
+import {
+  EyeInvisibleOutlined,
+  EyeTwoTone,
+  UserOutlined,
+  MailOutlined,
+} from "@ant-design/icons";
 import { generateStrongPassword } from "./passwordGeneration";
 
 import "./App.css";
@@ -18,6 +23,8 @@ import "./App.css";
 function App() {
   const [init, setInit] = useState(false);
   const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [value, setValue] = useState(1);
   const onChange = (e) => {
     setValue(e.target.value);
@@ -143,13 +150,6 @@ function App() {
     []
   );
 
-  // const openNotificationWithIcon = (type, description) => {
-  //   api[type]({
-  //     message: "Success",
-  //     description,
-  //   });
-  // };
-
   const onCopy = () => {
     navigator.clipboard.writeText(password).then(
       function () {
@@ -168,6 +168,49 @@ function App() {
         console.error(": ", err);
       }
     );
+  };
+  const onSubmit = async () => {
+    if (!name || !email || !password) {
+      notification.open({
+        message: "Submit",
+        type: "error",
+        description: "All fields are required!!",
+      });
+      return;
+    }
+    try {
+      const submitData = await fetch("http://localhost:5003/api/v1/users", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, email, password }),
+      });
+      const res = await submitData.json();
+      if (res.responseText === "SUCCESS") {
+        notification.open({
+          message: "Submit",
+          type: "success",
+          description: `Hello! ${name} your data is securely submitted`,
+        });
+        setEmail("");
+        setName("");
+        setPassword("");
+      } else {
+        notification.open({
+          message: "Submit",
+          type: "error",
+          description: "Something went wrong",
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      notification.open({
+        message: "Submit",
+        type: "error",
+        description: "Something went wrong",
+      });
+    }
   };
   return (
     <ConfigProvider theme={{ token: { colorPrimary: "#d3ab24" } }}>
@@ -188,6 +231,28 @@ function App() {
                   </Space>
                 </Radio.Group>
               </div>
+
+              <div className="element-container">
+                <Space direction="horizontal">
+                  <Input
+                    placeholder="Enter name"
+                    prefix={<UserOutlined />}
+                    onChange={(e) => setName(e.target.value)}
+                    value={name}
+                  />
+                </Space>
+              </div>
+              <div className="element-container">
+                <Space direction="horizontal">
+                  <Input
+                    type="email"
+                    placeholder="Enter email"
+                    prefix={<MailOutlined />}
+                    onChange={(e) => setEmail(e.target.value)}
+                    value={email}
+                  />
+                </Space>
+              </div>
               {value === 1 && (
                 <div className="element-container">
                   <Space direction="horizontal">
@@ -197,6 +262,7 @@ function App() {
                       iconRender={(visible) =>
                         visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
                       }
+                      value={password}
                     />
                   </Space>
                 </div>
@@ -221,9 +287,13 @@ function App() {
                   </Space>
                 </div>
               )}
-              <div className="element-container">
-                <Button type="primary">Submit</Button>
-              </div>
+              {password !== "" && (
+                <div className="element-container">
+                  <Button type="primary" onClick={onSubmit}>
+                    Submit
+                  </Button>
+                </div>
+              )}
             </header>
           </div>
         </div>

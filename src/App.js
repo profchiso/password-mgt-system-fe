@@ -200,7 +200,7 @@ function App() {
         notification.open({
           message: "Submit",
           type: "error",
-          description: "Something went wrong",
+          description: res.data.msg || "something went wrong",
         });
       }
     } catch (error) {

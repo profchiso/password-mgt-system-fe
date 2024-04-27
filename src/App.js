@@ -117,7 +117,7 @@ function App() {
       notification.open({
         message: "Submit",
         type: "error",
-        description: "Invalid email address!",
+        description: "Invalid email address entered!",
       });
       return;
     }

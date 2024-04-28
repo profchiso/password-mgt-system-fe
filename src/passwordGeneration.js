@@ -5,11 +5,9 @@ export function generateStrongPassword(length = 12) {
   const numericChars = "0123456789";
   const specialChars = "!@#$%^&*()_+-=[]{}|;:,.<>?";
 
-  // Combine all characters
   const allChars =
     uppercaseChars + lowercaseChars + numericChars + specialChars;
 
-  // Ensure the password includes at least one character from each category
   const passwordArray = [
     uppercaseChars[Math.floor(Math.random() * uppercaseChars.length)],
     lowercaseChars[Math.floor(Math.random() * lowercaseChars.length)],
